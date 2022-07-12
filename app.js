@@ -70,9 +70,9 @@ BTN_COPY.addEventListener('click', (event) => {
 
 const updateInterFace = ()=> {
     if (isValidJSONString(EDITOR.doc.getValue())) {
-        let object = JSON.parse(EDITOR.doc.getValue())
-        let name = NAME_EL.value.trim() ? NAME_EL.value : 'Root Object'
-        RESULT.getDoc().setValue(getInterfaces(name, object))
+        let object = JSON.parse(EDITOR.doc.getValue());
+        let name = NAME_EL.value.trim() ? NAME_EL.value : 'Root Object';
+        RESULT.getDoc().setValue(getInterfaces(name, object));
     }
 }
 
@@ -144,6 +144,28 @@ const getInterfaces = (name , object)=> {
 
     return output
 }
+
+
+
+
+(function () {
+    let object = 
+`{
+  "name": "Example JSON",
+  "description": "Paste single object JSON the Types generator will auto-generate the interfaces for you",
+  "acceptance": ["JSON", "Array"],
+  "acceptedObjects": 1,
+  "isDoubleQuotesSensitive": true,
+  "validation": {
+  	"quotes": true,
+    "json": true,
+    "array": true,
+    "case": false,
+    "linters": true
+  }
+}`;
+    EDITOR.getDoc().setValue(object)
+})();
 
 
 
