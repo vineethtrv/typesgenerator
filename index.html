@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Types Generator</title>
+    
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    
+    <link rel="stylesheet" href="https://codemirror.net/5/lib/codemirror.css">
+    <link rel="stylesheet" href="https://codemirror.net/5/addon/lint/lint.css">
+    <link rel="stylesheet" href="https://codemirror.net/5/theme/material-palenight.css">
+    
+    <link rel="stylesheet" href="styles.css">
+<!-- SEO -->
+<meta name="description"
+    content="Types generator will help you to create TS types from JSON. Just paste your single object JSON the Types generator will auto-generate the interfaces for you. You can give a name for the root object">
+<meta name="keywords"
+    content="type script, TypeScript, Interfaces, types, models, javascript, Types Generator, angular, react, vue, vue js">
+<meta name="author" content="Vineeth TR">
+
+<meta name="image" content="https://vineethtrv.github.io/typesgenerator/TypesGenerator.png">
+<!-- Schema.org for Google -->
+<meta itemprop="name" content="Types Generator">
+<meta itemprop="description"
+    content="Types generator will help you to create TS types from JSON. Just paste your single object JSON the Types generator will auto-generate the interfaces for you. You can give a name for the root object.">
+<meta itemprop="image" content="https://vineethtrv.github.io/typesgenerator/TypesGenerator.png">
+<!-- Twitter -->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Types Generator">
+<meta name="twitter:description"
+    content="Types generator will help you to create TS types from JSON. Just paste your single object JSON the Types generator will auto-generate the interfaces for you. You can give a name for the root object.">
+<meta name="twitter:site" content="vineethtrv">
+<meta name="twitter:creator" content="vineethtrv">
+<meta name="twitter:image:src" content="https://vineethtrv.github.io/typesgenerator/TypesGenerator.png">
+<!-- Open Graph general (Facebook, Pinterest & Google+) -->
+<meta name="og:title" content="Types Generator">
+<meta name="og:description"
+    content="Types generator will help you to create TS types from JSON. Just paste your single object JSON the Types generator will auto-generate the interfaces for you. You can give a name for the root object.">
+<meta name="og:image" content="https://vineethtrv.github.io/typesgenerator/TypesGenerator.png">
+<meta name="og:url" content="https://vineethtrv.github.io/typesgenerator/">
+<meta name="fb:admins" content="vinithtrv">
+<meta name="og:type" content="website">
+<!-- SEO -->
+
+
+</head>
+<body>
+
+
+
+    <header class="page-header">
+        <h1>Types Generator</h1>
+    </header>
+
+    <main>
+        
+        <article>
+            <h3>
+                Types generator will help you to create TS Interfaces from JSON.
+            </h3>
+            <p>
+            Just paste your single object JSON the Types generator will auto-generate the interfaces for you. You can give a name
+            for the root object.
+            </p>
+        </article>
+
+        <div class="wrapper">
+
+            <section id="col-input">
+                <header class="code-header">
+                    <input required id="root-name" placeholder="Enter root name..." type="text">
+                    <i class="cursor"></i>
+                </header>
+                <div class="code-wrapper">
+                    <textarea id="type-input">{}</textarea>
+                </div>
+            </section>
+
+            <section id="col-result">
+                <header class="code-header end">
+                    <h2 class="title">Result</h2>
+                    <button id="btn-copy"> 
+                        <i class="copy-icon"></i> 
+                        Copy
+                        <div class="toaster">Copied</div>
+                    </button>
+                </header>
+                <div class="code-wrapper">
+                    <div id="type-result"></div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <a href="https://vineethtrv.github.io/" target="_blank">
+            <span>👨‍💻</span>
+            Vineeth TR
+        </a>
+    </footer>
+    <script src="https://codemirror.net/5/lib/codemirror.js"></script>
+    <script src="https://codemirror.net/5/mode/javascript/javascript.js"></script>
+    <script src="https://unpkg.com/jsonlint@1.6.3/web/jsonlint.js"></script>
+    <script src="https://codemirror.net/5/addon/lint/lint.js"></script>
+    <script src="https://codemirror.net/5/addon/lint/json-lint.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
