@@ -5,9 +5,13 @@ const BTN_COPY = document.getElementById('btn-copy');
 
 let output;
 let name = 'Root'
-
+let result = {};
 const toCamelCase =  (str) =>{
-    str = str.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase());
+    str = str
+        .replace(/\s(.)/g, function ($1) { return $1.toUpperCase(); })
+        .replace(/\s/g, '')
+        .replace(/^(.)/, function ($1) { return $1.toLowerCase(); })
+        .replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase());
    return  str.charAt(0).toUpperCase() + str.slice(1);
 }
 const isValidJSONString  =  (str) => {
@@ -41,6 +45,9 @@ const RESULT = CodeMirror(RESULT_EL, {
     readOnly: 'nocursor'
 });
 
+const isJSON = (item)=>{
+    return typeof item === 'object' && !Array.isArray(item) && item;
+}
 
 // Editor update
 EDITOR.on('change', (editor) => {
@@ -72,75 +79,113 @@ const updateInterFace = ()=> {
     if (isValidJSONString(EDITOR.doc.getValue())) {
         let object = JSON.parse(EDITOR.doc.getValue());
         let name = NAME_EL.value.trim() ? NAME_EL.value : 'Root Object';
-        RESULT.getDoc().setValue(getInterfaces(name, object));
+        result = {};
+        let flattenObject = flatten(name, object);
+        RESULT.getDoc().setValue(flattenObject);
     }
 }
 
 
 
-const getInterfaces = (name , object)=> {
-    let output = `export interface ${toCamelCase(name)} { \n`;
-    let collection = {};
 
+const flatten = (name, object)=> {
+    name = toCamelCase(name); // Make name camel case
 
-    if (Array.isArray(object)){
-        output = '';
-        let arrayType = toCamelCase(name);
+    // If object is an array
+    if (Array.isArray(object)) {
+        let output = '';
+        let arrayType = '';
 
         object.forEach(objArrayItem => {
-            if (typeof objArrayItem === 'object'){
-                collection = {...collection, ...objArrayItem};
+            if (typeof objArrayItem === 'object' && objArrayItem !== null) {
+                output +=  flatten(name, { "RootArray": object });
+            } else if (objArrayItem === null) {
+                arrayType += getTypes(arrayType, null);
             } else {
-                arrayType += arrayType.includes(typeof objArrayItem) ? '' : ' | ' + typeof objArrayItem;
+                arrayType += getTypes(arrayType, typeof objArrayItem);
             }
         });
-        
-        output += getInterfaces(name, collection)
-        output += arrayType.includes("|")? `export type ${toCamelCase(name)}  = ${arrayType}; \n`: '';
+
+        output += arrayType? `export type ${name}  = ${arrayType}; \n` : '';
         return output;
     }
 
 
+
+    const getArrayType = (keyName, array) => {
+        let arrayType = '';
+        array.forEach(arrayItem => {
+            // Child is Array
+            if (Array.isArray(arrayItem)) {
+                arrayType += getTypes(arrayType, getArrayType(keyName, arrayItem));
+            }
+            // Child is Json
+            else if (isJSON(arrayItem)) {
+                let objectFlattened = flatten(keyName, arrayItem);
+                result = { ...result, ...objectFlattened };
+                arrayType += getTypes(arrayType, toCamelCase(keyName));
+            }
+            // If it is null
+            else if (arrayItem === null) {
+                arrayType += getTypes(arrayType, null);
+            }
+            // Reset all type 
+            else {
+                arrayType += getTypes(arrayType, typeof arrayItem);
+            }
+        });
+        return arrayType;
+    }
+
+    // Hydrate the object
     for (const key in object) {
-        if (Array.isArray(object[key])){
+        // Child is Array
+        if (Array.isArray(object[key])) {
+            let arrayType = `(${getArrayType(key, object[key])})[] | null`;
+            result[name] = { ...result[name], [key]: arrayType };
+        }
+        // Child is Json
+        else if (isJSON(object[key])) {
+            let objectFlattened = {...flatten(key, object[key])};
+            if (isNaN(key)){
+                result[name] = { ...result[name], [key]: toCamelCase(key) };
+            }
+            if (!result[toCamelCase(key)]) {
+                result = { ...result, ...objectFlattened };
+            }
+        }
 
-            let arrayType = '';
-            
-            object[key].forEach( item  => {
-                if (typeof item === 'object'){
-                    
-                    if (Array.isArray(item)) {
-                        return
-                    } else {
-                        collection[`${key}`] = item;
-                    }
-                    
-                    arrayType += getTypes(arrayType, toCamelCase(key));
-                } else{
-                    arrayType += getTypes(arrayType, typeof item);
-                }
-            });
-
-            arrayType = arrayType.length ? `(${arrayType})`: '';
-
-            output += `  ${key}?: ${arrayType}[] | null;\n`;
+        // If it is null
+        else if (object[key] === null) {
+            result[name] = { ...result[name], [key]: null };
+        }
+        // Reset all type 
+        else {
+            result[name] = { ...result[name], [key]: typeof object[key]} ;
         } 
-        else if (typeof object[key] === 'object' && !Array.isArray(object[key])){
-            output += `  ${key}: ${toCamelCase(key)};\n`;
-            collection[`${key}`] = object[key];
-        }
-        else{
-            output += `  ${key}: ${typeof object[key]};\n`;
+    }
+    return getInterfaces(name, result);
+} 
+
+
+
+
+const getInterfaces = (name , object)=> {
+    let output = '';
+    for (const key in object) {
+        if (isNaN(key)) {
+            let childObject = object[key];
+            output += `export interface ${key} { \n`
+    
+            for (const childKey in childObject) {
+
+                let optional = !childObject[childKey] || childObject[childKey].includes('null') ? '?': '';
+
+                output += `  ${childKey + optional}: ${childObject[childKey]};\n`;
+            }
+            output += '}\n';
         }
     }
-    output += '}\n';
-
-
-
-    for (const key in collection) {
-        output += getInterfaces(key, collection[key]);
-    }
-
 
     return output
 }
@@ -148,9 +193,12 @@ const getInterfaces = (name , object)=> {
 
 
 
+
+// Example
+
 (function () {
-    let object = 
-`{
+    let object =
+        `{
   "name": "Example JSON",
   "description": "Paste single object JSON the Types generator will auto-generate the interfaces for you",
   "acceptance": ["JSON", "Array"],
@@ -160,12 +208,8 @@ const getInterfaces = (name , object)=> {
   	"quotes": true,
     "json": true,
     "array": true,
-    "case": false,
     "linters": true
   }
 }`;
     EDITOR.getDoc().setValue(object)
 })();
-
-
-
