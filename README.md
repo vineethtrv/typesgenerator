@@ -8,3 +8,9 @@ App link:  [Types Generator](https://vineethtrv.github.io/typesgenerator/)
 
 
 ![Type Generator](https://user-images.githubusercontent.com/5153908/178934801-84cd252d-b199-48d4-966e-768fed18d6e3.gif)
+
+
+Please feel free to comment your suggestions and feedbacks on Product Hunt
+
+[![Types Generator - Types generator will auto generate TS Interfaces from JSON | Product Hunt](https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=352940&theme=light)](https://www.producthunt.com/posts/types-generator?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-types&#0045;generator)   
+
