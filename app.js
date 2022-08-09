@@ -113,35 +113,41 @@ const flatten = (name, object)=> {
 
 
     const getArrayType = (keyName, array) => {
-        let arrayType = '';
+        let arrayTypes = [];
         array.forEach(arrayItem => {
             // Child is Array
             if (Array.isArray(arrayItem)) {
-                arrayType += getTypes(arrayType, getArrayType(keyName, arrayItem));
+                arrayTypes.push(getTypes(arrayTypes, getArrayType(keyName, arrayItem) + '[]'));
             }
             // Child is Json
             else if (isJSON(arrayItem)) {
                 let objectFlattened = flatten(keyName, arrayItem);
                 result = { ...result, ...objectFlattened };
-                arrayType += getTypes(arrayType, toCamelCase(keyName));
+                arrayTypes.push(getTypes(arrayTypes, toCamelCase(keyName)));
             }
             // If it is null
             else if (arrayItem === null) {
-                arrayType += getTypes(arrayType, null);
+                arrayTypes.push(getTypes(arrayTypes, null));
             }
             // Reset all type 
             else {
-                arrayType += getTypes(arrayType, typeof arrayItem);
+                arrayTypes.push(getTypes(arrayTypes, typeof arrayItem));
             }
         });
-        return arrayType;
+        if (!arrayTypes.length) {
+            arrayTypes.push('any')
+        } else if (arrayTypes.length >= 2) {
+            arrayTypes.unshift('(')
+            arrayTypes.push(')')
+        }
+        return arrayTypes.join('');
     }
 
     // Hydrate the object
     for (const key in object) {
         // Child is Array
         if (Array.isArray(object[key])) {
-            let arrayType = `(${getArrayType(key, object[key])})[] | null`;
+            let arrayType = `${getArrayType(key, object[key])}[] | null`;
             result[name] = { ...result[name], [key]: arrayType };
         }
         // Child is Json
