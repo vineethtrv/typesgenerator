@@ -2,7 +2,7 @@
 
 Types generator is a utility tool that will help User to create TS Interfaces from JSON. All you have to do is paste your single object JSON into this Types generator. Types Generator will auto-generate the TS interfaces for you.
 
-Types Generator will accepet  JSON and Array objects . You can give a name for the root object also 
+Types Generator will accepet  JSON and Array objects. You can give a name for the root object also 
 
 App link:  [Types Generator](https://vineethtrv.github.io/typesgenerator/)
 
