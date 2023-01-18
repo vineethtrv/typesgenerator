@@ -81,11 +81,24 @@ const updateInterFace = ()=> {
         let name = NAME_EL.value.trim() ? NAME_EL.value : 'Root Object';
         result = {};
         let flattenObject = flatten(name, object);
+        flattenObject = removeDuplicates(flattenObject);
         RESULT.getDoc().setValue(flattenObject);
     }
 }
 
 
+
+const removeDuplicates = (interfaceString)=> {
+    let firstLineIndex = interfaceString.indexOf(`\n`);
+    let firstLine = interfaceString.substring(0, (firstLineIndex + 1));
+    let firstLineRemovedString = interfaceString.replace(firstLine, '');
+    let dupIndexStarts = firstLineRemovedString.indexOf(firstLine);
+    if (dupIndexStarts === -1){
+        return interfaceString 
+    }
+    let dupLength = firstLineRemovedString.length;
+    return firstLineRemovedString.substring(dupIndexStarts, dupLength);
+}
 
 
 const flatten = (name, object)=> {
