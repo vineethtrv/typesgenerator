@@ -2,7 +2,7 @@ const RESULT_EL = document.getElementById('type-result');
 const INPUT_EL = document.getElementById('type-input');
 const NAME_EL = document.getElementById('root-name');
 const BTN_COPY = document.getElementById('btn-copy');
-
+const EXPORT_FLAG = ' export';
 let output;
 let name = 'Root'
 let result = {};
@@ -14,6 +14,8 @@ const toCamelCase =  (str) =>{
         .replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase());
    return  str.charAt(0).toUpperCase() + str.slice(1);
 }
+
+
 const isValidJSONString  =  (str) => {
     try {
         JSON.parse(str);
@@ -78,7 +80,8 @@ BTN_COPY.addEventListener('click', (event) => {
 const updateInterFace = ()=> {
     if (isValidJSONString(EDITOR.doc.getValue())) {
         let object = JSON.parse(EDITOR.doc.getValue());
-        let name = NAME_EL.value.trim() ? NAME_EL.value : 'Root Object';
+        let rootType = Array.isArray(object) ? 'RootArray' : 'RootObject';
+        let name = NAME_EL.value.trim() ? NAME_EL.value : rootType;
         result = {};
         let flattenObject = flatten(name, object);
         flattenObject = removeDuplicates(flattenObject);
@@ -89,21 +92,18 @@ const updateInterFace = ()=> {
 
 
 const removeDuplicates = (interfaceString)=> {
-    let firstLineIndex = interfaceString.indexOf(`\n`);
-    let firstLine = interfaceString.substring(0, (firstLineIndex + 1));
-    let firstLineRemovedString = interfaceString.replace(firstLine, '');
-    let dupIndexStarts = firstLineRemovedString.indexOf(firstLine);
-    if (dupIndexStarts === -1){
-        return interfaceString 
-    }
-    let dupLength = firstLineRemovedString.length;
-    return firstLineRemovedString.substring(dupIndexStarts, dupLength);
+    // Remove duplicates and empty strings
+    let uniq = [...new Set(interfaceString.split(EXPORT_FLAG.toUpperCase()))].filter(item => item !== "");
+    let interfacesText = '';
+    uniq.forEach(interfaceString =>{
+        interfacesText += EXPORT_FLAG.trim() + interfaceString;
+    })
+    return interfacesText;
 }
 
 
 const flatten = (name, object)=> {
     name = toCamelCase(name); // Make name camel case
-
     // If object is an array
     if (Array.isArray(object)) {
         let output = '';
@@ -111,7 +111,8 @@ const flatten = (name, object)=> {
 
         object.forEach(objArrayItem => {
             if (typeof objArrayItem === 'object' && objArrayItem !== null) {
-                output +=  flatten(name, { "RootArray": object });
+                let rootType = Array.isArray(objArrayItem) ? 'RootArray' : 'RootObject';
+                output += flatten(name, { "rootObject": object });
             } else if (objArrayItem === null) {
                 arrayType += getTypes(arrayType, null);
             } else {
@@ -119,7 +120,7 @@ const flatten = (name, object)=> {
             }
         });
 
-        output += arrayType? `export type ${name}  = ${arrayType}; \n` : '';
+        output += arrayType ? `${EXPORT_FLAG.toUpperCase()} type ${name}  = ${arrayType}; \n` : '';
         return output;
     }
 
@@ -194,7 +195,7 @@ const getInterfaces = (name , object)=> {
     for (const key in object) {
         if (isNaN(key)) {
             let childObject = object[key];
-            output += `export interface ${key} { \n`
+            output += `${EXPORT_FLAG.toUpperCase()} interface ${key} { \n`
     
             for (const childKey in childObject) {
 
@@ -219,6 +220,7 @@ const getInterfaces = (name , object)=> {
     let object =
         `{
   "name": "Example JSON",
+  "version": 2,
   "description": "Paste single object JSON the Types generator will auto-generate the interfaces for you",
   "acceptance": ["JSON", "Array"],
   "acceptedObjects": 1,
@@ -227,6 +229,7 @@ const getInterfaces = (name , object)=> {
   	"quotes": true,
     "json": true,
     "array": true,
+    "active": false,
     "linters": true
   }
 }`;
